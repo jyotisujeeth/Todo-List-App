@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>TO_DO_list</title>
+  
+</head>
+<body>
+    <div class="container">
+        <div id="main" class="card card-body">
+         <h2 class="title">Add Items</h2>
+         <label>item name</label><br>
+         <input id="item_list" type="text" Name="item_list" required /><br>
+         <label>Choose a description</label><br>
+         <input id="desc" type="text" Name="description" required /><br>
+        
+           <input type="submit" class="btn btn-dark" value="Submit">
+         </form>
+         <h2 class="title">Items</h2>
+         <ul id="items" class="list-group">
+           <li class="list-group-item">Item 1 <button class="btn btn-danger btn-sm float-right delete">X</button></li>
+           <li class="list-group-item">Item 2 <button class="btn btn-danger btn-sm float-right delete">X</button></li>
+           <li class="list-group-item">Item 3 <button class="btn btn-danger btn-sm float-right delete">X</button></li>
+           <li class="list-group-item">Item 4 <button class="btn btn-danger btn-sm float-right delete">X</button></li>
+         </ul>
+       
+    </form>
+    </div>
+</div>
+    <ul id="To_do_Details"></ul>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.1/axios.min.js"></script>
+    
+    <script>
+        function To_do_Details(event){
+            event.preventDefault(event);
+            const item_list = event.target.item_list.value;
+            const Description = event.target.description.value;
+          
+           
+            const obj = {
+                item_list,
+                Description
+            
+            }
+            axios.post('http://localhost:3000/user/add-user', obj)
+            .then((response)=>{
+                DisplayOnScreen(response.data.newTo_do_Details)
+                console.log(response)
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+        }
+        window.addEventListener("DOMContentLoaded", (event) => {
+            axios.get('http://localhost:3000/user/get-user')
+            .then((response)=>{
+                console.log(response)
+                for(i=0;i<response.data.length;i++){
+                    DisplayOnScreen(response.data[i])
+                }
+            })
+            .catch((err)=>{
+                console.log(err)
+            })
+        })
+        function DisplayOnScreen(User){
+            const parentNode = document.getElementById("NumberOfItems")
+            const childNode = `<li id=${User.id}>$ item On-${User.Description}, item- Inr ${User.item_list} 
+            <button onclick=deleteItem('${User.id}')> Delete</li>`
+            parentNode.innerHTML = parentNode.innerHTML + childNode
+        
+        }
+        
+        function deleteItem(UserId){
+            axios.delete(`http://localhost:3000/user/delete-user/${UserId}`)
+            removeExpenseFromScreen(UserId);
+        }
+        function removeExpenseFromScreen(UserId){
+            const parentNode = document.getElementById('NumberOfItems');
+            const childNodeToBeDeleted = document.getElementById(UserId);
+
+            parentNode.removeChild(childNodeToBeDeleted);
+        }
+
+        function filterItems(e){
+            // convert text to lowercase
+            var text = e.target.value.toLowerCase();
+            // Get lis
+            var items = itemList.getElementsByTagName('li');
+            // Convert to an array
+            Array.from(items).forEach(function(item){
+              var itemName = item.firstChild.textContent;
+              if(itemName.toLowerCase().indexOf(text) != -1){
+                item.style.display = 'block';
+              } else {
+                item.style.display = 'none';
+              }
+            });
+          }
+    </script>
+   
+</body>
+</html>
